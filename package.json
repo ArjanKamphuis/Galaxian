@@ -1,0 +1,19 @@
+{
+  "name": "galaxian",
+  "version": "1.0.0",
+  "description": "HTML5 Canvas Game",
+  "private": true,
+  "scripts": {
+    "start": "http-server",
+    "build": "webpack"
+  },
+  "author": "Arjan Kamphuis",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.7"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15"
+  }
+}
