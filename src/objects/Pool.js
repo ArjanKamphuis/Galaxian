@@ -9,7 +9,7 @@ export default class {
 
         if (type === 'bullet') {
             for (let i = 0; i < this.size; i++) {
-                this.pool.push(new Bullet('main', 0, 0, ImageRepository.bullet.width, ImageRepository.bullet.height, type));
+                this.pool.push(new Bullet('main', 0, 0, ImageRepository.bullet.width, ImageRepository.bullet.height, type, 'enemy'));
             }
         } else if (type === 'enemy') {
             for (let i = 0; i < this.size; i++) {
@@ -17,9 +17,19 @@ export default class {
             }
         } else if (type === 'enemyBullet') {
             for (let i = 0; i < this.size; i++) {
-                this.pool.push(new Bullet('main', 0, 0, ImageRepository.enemyBullet.width, ImageRepository.enemyBullet.height, type));
+                this.pool.push(new Bullet('main', 0, 0, ImageRepository.enemyBullet.width, ImageRepository.enemyBullet.height, type, 'ship'));
             }
         }
+    }
+
+    getPool() {
+        let obj = [];
+        for (let i = 0; i < this.size; i++) {
+            if (this.pool[i].alive) {
+                obj.push(this.pool[i]);
+            }
+        }
+        return obj;
     }
 
     get(x, y, speed) {

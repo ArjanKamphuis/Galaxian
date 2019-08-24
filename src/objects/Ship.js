@@ -20,8 +20,11 @@ export default class Ship extends Drawable {
         super(canvasName, x, y, width, height);
         this.speed = 3;
         this.bulletPool = new Pool(30, 'bullet');
-        this.fireRate = 15;
+        this.fireRate = 9;
         this.counter = 0;
+
+        this.collidableWith = 'enemyBullet';
+        this.type = 'ship';
 
         document.addEventListener('keydown', (e) => {
             let keyCode = e.keyCode ? e.keyCode : e.charCode;
@@ -74,7 +77,9 @@ export default class Ship extends Drawable {
                 }
             }
 
-            this.draw();
+            if (!this.isColliding) {
+                this.draw();
+            }
         }
 
         if (KEY_STATUS.space && this.counter >= this.fireRate) {

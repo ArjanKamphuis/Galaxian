@@ -11,8 +11,16 @@ export default class Drawable {
         this.width = width;
         this.height = height;
         this.speed = 0;
+
+        this.collidableWith = '';
+        this.isColliding = false;
+        this.type = '';
     }
 
     draw() {}
     move() {}
+
+    isCollidableWith(obj) {
+        return this.collidableWith === obj.type;
+    }
 }

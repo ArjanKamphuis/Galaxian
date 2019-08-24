@@ -3,6 +3,7 @@ import Ship from "./Ship";
 import ImageRepository from "../helpers/ImageRepository";
 import CanvasController from "../helpers/CanvasController";
 import Pool from "./Pool";
+import QuadTree from "../helpers/Quadtree";
 
 export default class {
     constructor() {
@@ -10,6 +11,8 @@ export default class {
         this.ship = null;
         this.enemyPool = null;
         this.enemyBulletPool = null;
+
+        this.quadTree = new QuadTree({ x: 0, y: 0, width: CanvasController.getWidth('main'), height: CanvasController.getHeight('main') });
     }
     
     init() {
@@ -51,11 +54,39 @@ export default class {
     }
 
     animate() {
+        this.quadTree.clear();
+        this.quadTree.insert(this.ship);
+        this.quadTree.insert(this.ship.bulletPool.getPool());
+        this.quadTree.insert(this.enemyPool.getPool());
+        this.quadTree.insert(this.enemyBulletPool.getPool());
+        this.detectCollision();
+        
         requestAnimationFrame(() => this.animate());
         this.background.draw();
         this.ship.move();
         this.ship.bulletPool.animate();
         this.enemyPool.animate();
         this.enemyBulletPool.animate();
+    }
+
+    detectCollision() {
+        let objects = [];
+        this.quadTree.getAllObjects(objects);
+
+        for (let x = 0, len = objects.length; x < len; x++) {
+            let obj = [];
+            this.quadTree.findObjects(obj, objects[x]);
+
+            for (let y = 0, length = obj.length; y < length; y++) {
+                if (objects[x].collidableWith === obj[y].type &&
+                    (objects[x].x < obj[y].x + obj[y]. width &&
+                        objects[x].x + objects[x].width > obj[y].x &&
+                        objects[x].y < obj[y].y + obj[y].height &&
+                        objects[x].y + objects[x].height > obj[y].y)) {
+                            objects[x].isColliding = true;
+                            obj[y].isColliding = true;
+                        }
+            }
+        }
     }
 }

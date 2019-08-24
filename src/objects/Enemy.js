@@ -9,6 +9,9 @@ export default class Enemy extends Drawable {
         this.alive = false;
         this.game = game;
 
+        this.collidableWith = 'bullet';
+        this.type = 'enemy';
+
         this.speedX; this.speedY; this.leftEdge; this.rightEdge; this.bottomEdge;
     }
 
@@ -40,11 +43,17 @@ export default class Enemy extends Drawable {
             this.speedX = -this.speed;
         }
 
-        this.context.drawImage(ImageRepository.enemy, this.x, this.y);
+        if (!this.isColliding) {
+            this.context.drawImage(ImageRepository.enemy, this.x, this.y);
 
-        this.chance = Math.floor(Math.random() * 101);
-        if (this.chance / 100 < this.percentFire) {
-            this.fire();
+            this.chance = Math.floor(Math.random() * 101);
+            if (this.chance / 100 < this.percentFire) {
+                this.fire();
+            }
+
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -54,6 +63,6 @@ export default class Enemy extends Drawable {
 
     clear() {
         this.x = this.y = this.speed = this.speedX = this.speedY = 0;
-        this.alive = false;
+        this.alive = this.isColliding = false;
     }
 }
