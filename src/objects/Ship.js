@@ -19,7 +19,7 @@ export default class Ship extends Drawable {
     constructor(canvasName, x, y, width, height) {
         super(canvasName, x, y, width, height);
         this.speed = 3;
-        this.bulletPool = new Pool(30);
+        this.bulletPool = new Pool(30, 'bullet');
         this.fireRate = 15;
         this.counter = 0;
 

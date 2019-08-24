@@ -1,13 +1,24 @@
 import ImageRepository from "../helpers/ImageRepository";
 import Bullet from './Bullet';
+import Enemy from './Enemy';
 
 export default class {
-    constructor(maxSize) {
+    constructor(maxSize, type, game = null) {
         this.size = maxSize;
         this.pool = [];
 
-        for (let i = 0; i < this.size; i++) {
-            this.pool.push(new Bullet('main', 0, 0, ImageRepository.bullet.width, ImageRepository.bullet.height));
+        if (type === 'bullet') {
+            for (let i = 0; i < this.size; i++) {
+                this.pool.push(new Bullet('main', 0, 0, ImageRepository.bullet.width, ImageRepository.bullet.height, type));
+            }
+        } else if (type === 'enemy') {
+            for (let i = 0; i < this.size; i++) {
+                this.pool.push(new Enemy('main', 0, 0, ImageRepository.enemy.width, ImageRepository.enemy.height, game));
+            }
+        } else if (type === 'enemyBullet') {
+            for (let i = 0; i < this.size; i++) {
+                this.pool.push(new Bullet('main', 0, 0, ImageRepository.enemyBullet.width, ImageRepository.enemyBullet.height, type));
+            }
         }
     }
 
