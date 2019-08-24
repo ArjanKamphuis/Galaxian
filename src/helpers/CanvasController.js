@@ -7,6 +7,10 @@ class Canvas {
 
     get width() { return this.canvas.width; }
     get height() { return this.canvas.height; }
+
+    reset() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
 }
 
 class CanvasController {
@@ -17,6 +21,12 @@ class CanvasController {
     getContext(name) { return this.canvasses[name].context; }
     getWidth(name) { return this.canvasses[name].width; }
     getHeight(name) { return this.canvasses[name].height; }
+
+    reset() {
+        for (let key in this.canvasses) {
+            this.canvasses[key].reset();
+        }
+    }
 }
 
 export default new CanvasController();

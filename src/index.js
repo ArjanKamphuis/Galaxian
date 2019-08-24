@@ -3,7 +3,5 @@ import './helpers/FullScreenController';
 
 window.init = () => {
     const game = new Game();
-    if (game.init()) {
-        game.start();
-    }
+    game.init();
 }

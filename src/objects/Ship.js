@@ -16,12 +16,14 @@ for (let code in KEY_CODES) {
 }
 
 export default class Ship extends Drawable {
-    constructor(canvasName, x, y, width, height) {
+    constructor(canvasName, x, y, width, height, game) {
         super(canvasName, x, y, width, height);
         this.speed = 3;
         this.bulletPool = new Pool(30, 'bullet');
         this.fireRate = 9;
         this.counter = 0;
+        this.game = game;
+        this.alive = true;
 
         this.collidableWith = 'enemyBullet';
         this.type = 'ship';
@@ -79,6 +81,9 @@ export default class Ship extends Drawable {
 
             if (!this.isColliding) {
                 this.draw();
+            } else {
+                this.alive = false;
+                this.game.gameOver();
             }
         }
 
@@ -90,5 +95,6 @@ export default class Ship extends Drawable {
 
     fire() {
         this.bulletPool.getTwo(this.x + 6, this.y, 3, this.x + 33, this.y, 3);
+        this.game.laser.get();
     }
 }

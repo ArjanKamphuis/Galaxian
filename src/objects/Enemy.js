@@ -53,6 +53,8 @@ export default class Enemy extends Drawable {
 
             return false;
         } else {
+            this.game.playerScore += 10;
+            this.game.explosion.get();
             return true;
         }
     }

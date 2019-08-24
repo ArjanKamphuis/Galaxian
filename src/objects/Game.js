@@ -4,6 +4,7 @@ import ImageRepository from "../helpers/ImageRepository";
 import CanvasController from "../helpers/CanvasController";
 import Pool from "./Pool";
 import QuadTree from "../helpers/Quadtree";
+import SoundPool from "./SoundPool";
 
 export default class {
     constructor() {
@@ -12,7 +13,31 @@ export default class {
         this.enemyPool = null;
         this.enemyBulletPool = null;
 
+        this.laser = null;
+        this.explosion = null;
+        this.backgroundAudio = null;
+        this.gameOverAudio = null;
+        this.checkAudio = null;
+
+        this.playerScore = 0;
+
         this.quadTree = new QuadTree({ x: 0, y: 0, width: CanvasController.getWidth('main'), height: CanvasController.getHeight('main') });
+
+        document.getElementById('restart').addEventListener('click', () => {
+            this.restart();
+        })
+    }
+
+    initObjects() {
+        let shipStartX = CanvasController.getWidth('ship') / 2 - ImageRepository.spaceship.width;
+        let shipStartY = CanvasController.getHeight('ship') / 4 * 3 + ImageRepository.spaceship.height * 2;
+
+        this.background = new Background('background', 0, 0);
+        this.ship = new Ship('ship', shipStartX, shipStartY, ImageRepository.spaceship.width, ImageRepository.spaceship.height, this);
+
+        this.enemyPool = new Pool(30, 'enemy', this);
+        this.spawnWave();
+        this.enemyBulletPool = new Pool(50, 'enemyBullet');
     }
     
     init() {
@@ -21,14 +46,45 @@ export default class {
             return false;
         }
 
-        let shipStartX = CanvasController.getWidth('ship') / 2 - ImageRepository.spaceship.width;
-        let shipStartY = CanvasController.getHeight('ship') / 4 * 3 + ImageRepository.spaceship.height * 2;
+        this.initObjects();
 
-        this.background = new Background('background', 0, 0);
-        this.ship = new Ship('ship', shipStartX, shipStartY, ImageRepository.spaceship.width, ImageRepository.spaceship.height);
+        this.laser = new SoundPool(10, 'laser');
+        this.explosion = new SoundPool(20, 'explosion');
+        this.backgroundAudio = new Audio('/sounds/kick_shock.wav');
+        this.backgroundAudio.loop = true;
+        this.backgroundAudio.volume = .25;
+        this.backgroundAudio.load();
+        this.gameOverAudio = new Audio('/sounds/game_over.wav');
+        this.gameOverAudio.loop = true;
+        this.gameOverAudio.volume = .25;
+        this.gameOverAudio.load();
 
-        this.enemyPool = new Pool(30, 'enemy', this);
+        this.checkAudio = window.setInterval(() => { this.checkReadyState() }, 1000);
 
+        const musicBtn = document.getElementById('music');
+        musicBtn.addEventListener('click', () => {
+            if (this.ship.alive) {
+                if (this.backgroundAudio.paused) {
+                    document.getElementById('musicState').innerHTML = 'Mute';
+                    this.backgroundAudio.play();
+                } else {
+                    document.getElementById('musicState').innerHTML = 'Unmute';
+                    this.backgroundAudio.pause();
+                }
+            } else {
+                if (this.gameOverAudio.paused) {
+                    document.getElementById('musicState').innerHTML = 'Mute';
+                    this.gameOverAudio.play();
+                } else {
+                    document.getElementById('musicState').innerHTML = 'Unmute';
+                    this.gameOverAudio.pause();
+                }
+            }
+            
+        });
+    }
+
+    spawnWave() {
         let width = ImageRepository.enemy.width;
         let height = ImageRepository.enemy.height;
         let x = 100;
@@ -42,31 +98,43 @@ export default class {
                 y += spacer;
             }
         }
+    }
 
-        this.enemyBulletPool = new Pool(50, 'enemyBullet');
-
-        return true;
+    checkReadyState() {
+        if (this.gameOverAudio.readyState === 4 && this.backgroundAudio.readyState === 4) {
+            window.clearInterval(this.checkAudio);
+            this.start();
+        }
     }
 
     start() {
         this.ship.draw();
+        this.backgroundAudio.play();
         this.animate();
     }
 
     animate() {
+        document.getElementById('score').innerHTML = this.playerScore;
+        
         this.quadTree.clear();
         this.quadTree.insert(this.ship);
         this.quadTree.insert(this.ship.bulletPool.getPool());
         this.quadTree.insert(this.enemyPool.getPool());
         this.quadTree.insert(this.enemyBulletPool.getPool());
         this.detectCollision();
+
+        if (this.enemyPool.getPool().length === 0) {
+            this.spawnWave();
+        }
         
-        requestAnimationFrame(() => this.animate());
-        this.background.draw();
-        this.ship.move();
-        this.ship.bulletPool.animate();
-        this.enemyPool.animate();
-        this.enemyBulletPool.animate();
+        if (this.ship.alive) {
+            requestAnimationFrame(() => this.animate());
+            this.background.draw();
+            this.ship.move();
+            this.ship.bulletPool.animate();
+            this.enemyPool.animate();
+            this.enemyBulletPool.animate();
+        }
     }
 
     detectCollision() {
@@ -88,5 +156,27 @@ export default class {
                         }
             }
         }
+    }
+
+    gameOver() {
+        this.backgroundAudio.pause();
+        this.gameOverAudio.currentTime = 0;
+        this.gameOverAudio.play();
+        document.getElementById('game-over').style.display = 'flex';
+    }
+
+    restart() {
+        this.gameOverAudio.pause();
+        document.getElementById('game-over').style.display = 'none';
+        CanvasController.reset();
+        this.quadTree.clear();
+
+        this.initObjects();
+
+        this.playerScore = 0;
+        this.backgroundAudio.currentTime = 0;
+        this.backgroundAudio.play();
+
+        this.start();
     }
 }
